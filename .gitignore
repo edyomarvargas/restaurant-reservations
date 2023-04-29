@@ -1,2 +1,23 @@
-/node_modules
-.env
+# Arquivos e diretórios gerados pelo Next.js
+.next/
+out/
+
+# Diretório de cache do Next.js
+.cache/
+
+# Diretório node_modules
+node_modules/
+
+# Arquivos de log
+*.log
+
+# Arquivos de configuração do editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+
+# Diretórios e arquivos de sistemas operacionais
+.DS_Store
+Thumbs.db
