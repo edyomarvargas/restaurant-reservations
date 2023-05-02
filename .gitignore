@@ -21,3 +21,5 @@ node_modules/
 # Diretórios e arquivos de sistemas operacionais
 .DS_Store
 Thumbs.db
+
+.env
