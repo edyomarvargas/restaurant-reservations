@@ -1,11 +1,42 @@
-import { PrismaClient } from "@prisma/client";
+import { PRICE, PrismaClient } from "@prisma/client";
 import Header from "./components/Header";
 import RestaurantCard from "./components/RestaurantCard";
 import SearchSideBar from "./components/SearchSideBar";
 
 const prisma = new PrismaClient();
 
-const fetchRestaurantsByCity = (city: string | undefined) => {
+interface SearchParams {
+  city?: string;
+  cuisine?: string;
+  price?: PRICE;
+}
+
+const fetchRestaurants = (searchParams: SearchParams) => {
+  const where: any = {};
+
+  if (searchParams.city) {
+    const location = {
+      name: {
+        equals: searchParams.city.toLowerCase(),
+      },
+    };
+    where.location = location;
+  }
+  if (searchParams.cuisine) {
+    const cuisine = {
+      name: {
+        equals: searchParams.cuisine.toLowerCase(),
+      },
+    };
+    where.cuisine = cuisine;
+  }
+  if (searchParams.price) {
+    const price = {
+      equals: searchParams.price,
+    };
+    where.price = price;
+  }
+
   const select = {
     id: true,
     name: true,
@@ -16,31 +47,38 @@ const fetchRestaurantsByCity = (city: string | undefined) => {
     slug: true,
   };
 
-  if (!city) prisma.restaurant.findMany({ select });
-
   return prisma.restaurant.findMany({
-    where: {
-      location: {
-        name: {
-          equals: city?.toLowerCase(),
-        },
-      },
-    },
+    where,
     select,
   });
+};
+
+const fetchLocations = async () => {
+  return prisma.location.findMany();
+};
+
+const fetchCuisines = async () => {
+  return prisma.cuisine.findMany();
 };
 
 export default async function Search({
   searchParams,
 }: {
-  searchParams: { city: string };
+  searchParams: SearchParams;
 }) {
-  const restaurants = await fetchRestaurantsByCity(searchParams.city);
+  const restaurants = await fetchRestaurants(searchParams);
+  const locations = await fetchLocations();
+  const cuisines = await fetchCuisines();
+
   return (
     <>
       <Header />
       <div className="flex py-4 m-auto w-2/3 justify-between items-start">
-        <SearchSideBar />
+        <SearchSideBar
+          locations={locations}
+          cuisines={cuisines}
+          searchParams={searchParams}
+        />
 
         <div className="w-5/6">
           {restaurants.length ? (
